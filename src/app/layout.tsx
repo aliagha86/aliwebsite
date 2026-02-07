@@ -18,23 +18,9 @@ export const metadata = {
     "digital assets",
     "crypto allocation"
   ],
-  openGraph: {
-    title: "Ali Zaigham Agha | Capital Allocation & Market Perspectives",
-    description:
-      "Independent market perspectives across UAE (ADX, DFM), Pakistan (PSX), and US markets.",
-    url: "https://alizaighamagha.com",
-    siteName: "Ali Zaigham Agha",
-    type: "website"
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Ali Zaigham Agha | Capital Allocation & Market Perspectives",
-    description:
-      "Capital allocation frameworks across UAE, Pakistan, and US markets."
-  },
   verification: {
-    google: "Fn2iSi6GjCdYFqjG0itBjJSkIw_U3-HoG6JyvfwoNwI",
-  },
+    google: "Fn2iSi6GjCdYFqjG0itBjJSkIw_U3-HoG6JyvfwoNwI"
+  }
 };
 
 export default function RootLayout({
@@ -44,6 +30,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-VR9X4YE46Y"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-VR9X4YE46Y', {
+                anonymize_ip: true,
+              });
+            `,
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
