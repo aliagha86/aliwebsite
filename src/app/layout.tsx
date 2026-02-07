@@ -22,7 +22,7 @@ export const metadata = {
     title: "Ali Zaigham Agha | Capital Allocation & Market Perspectives",
     description:
       "Independent market perspectives across UAE (ADX, DFM), Pakistan (PSX), and US markets.",
-    url: "https://yourdomain.com",
+    url: "https://alizaighamagha.com",
     siteName: "Ali Zaigham Agha",
     type: "website"
   },
@@ -31,7 +31,10 @@ export const metadata = {
     title: "Ali Zaigham Agha | Capital Allocation & Market Perspectives",
     description:
       "Capital allocation frameworks across UAE, Pakistan, and US markets."
-  }
+  },
+  verification: {
+    google: "Fn2iSi6GjCdYFqjG0itBjJSkIw_U3-HoG6JyvfwoNwI",
+  },
 };
 
 export default function RootLayout({
