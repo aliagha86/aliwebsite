@@ -1,10 +1,46 @@
 "use client";
+import { useEffect, useState } from "react";
 const LEAD_MAGNET_PDF = "/uae-market-brief-2026.pdf";
 const LINKEDIN_URL = "https://www.linkedin.com/in/alizaighamagha/";
 const X_URL = "https://x.com/aliaghax";
 const SUBSTACK_URL = "https://substack.com/@thejuniorbanker";
 
+const PERSON_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Ali Zaigham Agha",
+  jobTitle: "Capital Allocation & Market Perspectives",
+  url: "https://alizaighamagha.com",
+  sameAs: [LINKEDIN_URL, X_URL, SUBSTACK_URL],
+  knowsAbout: [
+    "UAE equities",
+    "ADX",
+    "DFM",
+    "Pakistan Stock Exchange",
+    "PSX",
+    "US equities and options",
+    "capital allocation",
+    "property investment",
+    "digital assets",
+  ],
+  alumniOf: ["INSEAD", "Amsterdam Business School", "LUMS"],
+};
+
 export default function Home() {
+  const [sent, setSent] = useState<null | "0" | "1">(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get("sent");
+
+    if (v === "1" || v === "0") {
+      setSent(v);
+      // clear the query param so refresh/bookmark doesn't keep the banner
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
   return (
     <main>
       {/* Header */}
@@ -220,7 +256,14 @@ export default function Home() {
           </div>
 
           <div className="formWrap">
-            <form className="form" method="post" action="/api/contact">
+            <form className="form" method="post" action="/api/inquiry">
+              <input
+                type="text"
+                name="company"
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
               <label>
                 Name
                 <input name="name" required />
@@ -242,9 +285,21 @@ export default function Home() {
               </label>
 
               <label className="checkboxRow">
-                <input type="checkbox" name="request_brief" value="yes" />
+                <input type="checkbox" name="wantsBrief" value="yes" />
                 Please send the free UAE Market Brief (PDF)
               </label>
+
+              {sent === "1" && (
+                <p className="formSuccess" role="status" aria-live="polite">
+                  ✓ Message sent. I’ll reply directly.
+                </p>
+              )}
+
+              {sent === "0" && (
+                <p className="formError" role="alert">
+                  Something went wrong. Please try again or connect via LinkedIn.
+                </p>
+              )}
 
               <button className="btnPrimary" type="submit">Send Inquiry</button>
               <p className="tiny">No spam. You’ll get a direct reply.</p>
@@ -252,6 +307,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_SCHEMA) }}
+      />
 
       {/* Footer */}
       <footer className="siteFooter">
@@ -266,33 +326,3 @@ export default function Home() {
     </main>
   );
 }
-<script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Person",
-      name: "Ali Zaigham Agha",
-      jobTitle: "Capital Allocation & Market Perspectives",
-      url: "https://yourdomain.com",
-      sameAs: [
-        "https://www.linkedin.com/in/alizaighamagha/",
-        "https://x.com/aliaghax",
-        "https://substack.com/@thejuniorbanker"
-      ],
-      knowsAbout: [
-        "UAE equities",
-        "capital allocation",
-        "investment frameworks",
-        "US equities and options",
-        "property investment",
-        "digital assets"
-      ],
-      alumniOf: [
-        "INSEAD",
-        "Amsterdam Business School",
-        "LUMS"
-      ]
-    })
-  }}
-/>
