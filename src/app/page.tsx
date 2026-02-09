@@ -1,5 +1,3 @@
-"use client";
-import { useEffect, useState } from "react";
 const LEAD_MAGNET_PDF = "/uae-market-brief-2026.pdf";
 const LINKEDIN_URL = "https://www.linkedin.com/in/alizaighamagha/";
 const X_URL = "https://x.com/aliaghax";
@@ -27,20 +25,6 @@ const PERSON_SCHEMA = {
 };
 
 export default function Home() {
-  const [sent, setSent] = useState<null | "0" | "1">(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const params = new URLSearchParams(window.location.search);
-    const v = params.get("sent");
-
-    if (v === "1" || v === "0") {
-      setSent(v);
-      // clear the query param so refresh/bookmark doesn't keep the banner
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, []);
   return (
     <main>
       {/* Header */}
@@ -256,7 +240,7 @@ export default function Home() {
           </div>
 
           <div className="formWrap">
-            <form className="form" method="post" action="/api/inquiry">
+            <form className="form" id="inquiryForm" noValidate>
               <input
                 type="text"
                 name="company"
@@ -266,17 +250,18 @@ export default function Home() {
               />
               <label>
                 Name
-                <input name="name" required />
+                <input id="name" name="name" required />
               </label>
 
               <label>
                 Email
-                <input type="email" name="email" required />
+                <input id="email" type="email" name="email" required />
               </label>
 
               <label>
                 Message
                 <textarea
+                  id="message"
                   name="message"
                   rows={6}
                   required
@@ -289,19 +274,15 @@ export default function Home() {
                 Please send the free UAE Market Brief (PDF)
               </label>
 
-              {sent === "1" && (
-                <p className="formSuccess" role="status" aria-live="polite">
-                  ✓ Message sent. I’ll reply directly.
-                </p>
-              )}
+              <p
+                id="formStatus"
+                className="muted"
+                role="status"
+                aria-live="polite"
+                style={{ display: "none" }}
+              />
 
-              {sent === "0" && (
-                <p className="formError" role="alert">
-                  Something went wrong. Please try again or connect via LinkedIn.
-                </p>
-              )}
-
-              <button className="btnPrimary" type="submit">Send Inquiry</button>
+              <button id="inquirySubmit" className="btnPrimary" type="submit">Send Inquiry</button>
               <p className="tiny">No spam. You’ll get a direct reply.</p>
             </form>
           </div>
@@ -311,6 +292,75 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_SCHEMA) }}
+      />
+
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              var form = document.getElementById('inquiryForm');
+              if (!form) return;
+
+              var statusEl = document.getElementById('formStatus');
+              var submitBtn = document.getElementById('inquirySubmit');
+
+              function showStatus(msg, kind) {
+                if (!statusEl) return;
+                statusEl.textContent = msg;
+                statusEl.className = kind === 'ok' ? 'formSuccess' : 'formError';
+                statusEl.style.display = 'block';
+              }
+
+              form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                var fd = new FormData(form);
+
+                // honeypot (spam trap)
+                var company = String(fd.get('company') || '');
+                if (company) {
+                  showStatus('✓ Message sent. I’ll reply directly.', 'ok');
+                  form.reset();
+                  return;
+                }
+
+                var payload = {
+                  name: String(fd.get('name') || ''),
+                  email: String(fd.get('email') || ''),
+                  message: String(fd.get('message') || ''),
+                  wantsBrief: fd.get('wantsBrief') === 'yes'
+                };
+
+                if (submitBtn) {
+                  submitBtn.setAttribute('disabled', 'disabled');
+                  submitBtn.textContent = 'Sending…';
+                }
+
+                try {
+                  var res = await fetch('/api/inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                  });
+
+                  if (res && res.ok) {
+                    showStatus('✓ Message sent. I’ll reply directly.', 'ok');
+                    form.reset();
+                  } else {
+                    showStatus('Something went wrong. Please try again or connect via LinkedIn.', 'err');
+                  }
+                } catch (err) {
+                  showStatus('Something went wrong. Please try again or connect via LinkedIn.', 'err');
+                } finally {
+                  if (submitBtn) {
+                    submitBtn.removeAttribute('disabled');
+                    submitBtn.textContent = 'Send Inquiry';
+                  }
+                }
+              });
+            })();
+          `,
+        }}
       />
 
       {/* Footer */}
